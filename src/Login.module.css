@@ -1,0 +1,103 @@
+/* src/Login.css */
+
+/* 外层：垂直水平居中，100vh */
+.page-root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa; /* 对应 bootstrap bg-light */
+  position: relative;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* 左上角 logo */
+.logo-wrap {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+}
+
+/* 白色卡片 */
+.card {
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  width: 50%;
+  max-width: 720px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  box-sizing: border-box;
+}
+
+/* 标题 */
+.card-title {
+  text-align: center;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+}
+
+/* 表单内间距 */
+.form {
+  display: block;
+}
+
+/* 表单项 */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+/* input 风格（替代 bootstrap .form-control .rounded-0） */
+.input {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px; /* 比较接近 rounded-0 的扁平风格 */
+  outline: none;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+/* 按钮：宽度 100%, 渐变背景，白字，无边框 */
+.btn-submit {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(to bottom, #ffd700, #ff8c00 25%, orangered 100%);
+}
+
+/* 页脚文字与链接 */
+.footer-text {
+  text-align: center;
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+}
+
+/* 链接样式（替代 tailwind 的 text-blue-600 italic hover:underline） */
+.text-link {
+  color: #1d4ed8; /* 蓝色 */
+  font-style: italic;
+  text-decoration: none;
+}
+
+.text-link:hover {
+  text-decoration: underline;
+}
+
+/* 响应式：小屏时卡片宽度改为 90% 或固定 max-width */
+@media (max-width: 768px) {
+  .card {
+    width: 90%;
+    padding: 1rem;
+  }
+
+  .logo-wrap img {
+    width: 64px;
+  }
+}
