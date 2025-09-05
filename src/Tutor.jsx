@@ -31,13 +31,6 @@ export default function TutorDashboard() {
   const [activeChatId, setActiveChatId] = useState(null);
   const [msgInput, setMsgInput] = useState("");
 
-
-  function addSlot() {
-    if (!slotInput.trim()) return;
-    setSlots([...slots, slotInput]);
-    setSlotInput("");
-  }
-
   function handleBookingResponse(id, accept, reason = "") {
     setBookings((prev) =>
       prev.map((b) =>
@@ -397,7 +390,6 @@ export default function TutorDashboard() {
           style={{
             background: "white",
             borderRadius: 8,
-            width: "400px",
             width: "700px",     // 固定宽度
             height: "500px",
             display: "flex",
