@@ -140,10 +140,18 @@ export default function App() {
   return (
     <div className="app-root">
       <div className="container">
-        <header className="app-header">
-          <h1>Book System</h1>
-          <div className="meta">Front-End Demo</div>
+        <header className="app-header" 
+          style={{ display: "flex", alignItems: "center", gap: 1 }}
+        >
+          <img 
+            src="/logo.png" 
+            alt="Logo" 
+            style={{ width: 60, height: 60, objectFit: "contain" }} 
+          />
+          <h1 style={{ margin: 0 }}>Book System</h1>
+          <div className="meta">Find your best life tutor!</div>       
         </header>
+
 
         <div className="search-row">
           <input className="search-input" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search tutor / subject / keyword..." />

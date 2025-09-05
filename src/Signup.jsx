@@ -1,7 +1,7 @@
 // src/Signup.jsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./Signup.module.css"; // 新增 CSS
+import styles from "./Signup.module.css"; // 模块化 CSS
 
 function Signup() {
   const [name, setName] = useState("");
@@ -16,16 +16,17 @@ function Signup() {
   };
 
   return (
-    <div className="page-root">
-      <div className="logo-wrap">
-        <img src="/logo.png" alt="Logo" width="80" />
+    <div className={styles["page-root"]}>
+      <div className={styles["logo-wrap"]}  style={{ marginLeft: 100, display: "flex", alignItems: "center", gap: 2}}>
+        <img src="/logo.png" alt="Logo" style={{ width: 150, height: 60, objectFit: "contain" }} />
+        <img src="/logo1.png" alt="Logo" style={{ width: 100, objectFit: "contain" }} />
       </div>
 
-      <div className="card">
-        <h2 className="card-title">Register</h2>
+      <div className={styles.card}>
+        <h2 className={styles["card-title"]}>Register</h2>
 
-        <form onSubmit={handleSubmit} className="form">
-          <div className="form-group">
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles["form-group"]}>
             <label htmlFor="name"><strong>Username</strong></label>
             <input
               id="name"
@@ -33,13 +34,13 @@ function Signup() {
               placeholder="Enter username"
               autoComplete="off"
               name="name"
-              className="input"
+              className={styles.input}
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
 
-          <div className="form-group">
+          <div className={styles["form-group"]}>
             <label htmlFor="email"><strong>Email</strong></label>
             <input
               id="email"
@@ -47,13 +48,13 @@ function Signup() {
               placeholder="Enter email"
               autoComplete="off"
               name="email"
-              className="input"
+              className={styles.input}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
-          <div className="form-group">
+          <div className={styles["form-group"]}>
             <label htmlFor="password"><strong>Password</strong></label>
             <input
               id="password"
@@ -61,18 +62,22 @@ function Signup() {
               placeholder="Enter password"
               autoComplete="off"
               name="password"
-              className="input"
+              className={styles.input}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
-          <button type="submit" className="btn-submit">Register</button>
+          <button type="submit" className={styles["btn-submit"]}>
+            Register
+          </button>
         </form>
 
-        <p className="footer-text">
+        <p className={styles["footer-text"]}>
           Already have an account?{" "}
-          <Link to="/login" className="text-link">Login</Link>
+          <Link to="/login" className={styles["text-link"]}>
+            Login
+          </Link>
         </p>
       </div>
     </div>

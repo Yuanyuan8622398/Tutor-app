@@ -5,6 +5,7 @@ import App from "./App";
 import Signup from "./Signup"
 import Login from "./Login"
 import Home from "./Home"
+import Tutor from "./Tutor"
 import "./index.css"; // 引入样式
 import { SpeedInsights } from '@vercel/speed-insights/react' 
 
@@ -17,6 +18,7 @@ root.render(
       <Route path='/home' element={<Home />}></Route>
       <Route path='/login' element={<Login />}></Route>
       <Route path='/' element={<Signup />}></Route>
+      <Route path='/tutor' element={<Tutor />}></Route>
     </Routes>
     <SpeedInsights /> 
   </BrowserRouter>

@@ -1,7 +1,7 @@
 // src/Login.jsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./Login.module.css"; // 新增 CSS
+import styles from "./Login.module.css"; // 模块化 CSS
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -15,16 +15,17 @@ function Login() {
   };
 
   return (
-    <div className="page-root">
-      <div className="logo-wrap">
-        <img src="/logo.png" alt="Logo" width="80" />
+    <div className={styles["page-root"]}>
+      <div className={styles["logo-wrap"]}  style={{ marginLeft: 100, display: "flex", alignItems: "center", gap: 2}}>
+          <img src="/logo.png" alt="Logo" style={{ width: 150, height: 60, objectFit: "contain" }} />
+          <img src="/logo1.png" alt="Logo" style={{ width: 100, objectFit: "contain" }} />
       </div>
 
-      <div className="card">
-        <h2 className="card-title">Login</h2>
+      <div className={styles.card}>
+        <h2 className={styles["card-title"]}>Login</h2>
 
-        <form onSubmit={handleSubmit} className="form">
-          <div className="form-group">
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles["form-group"]}>
             <label htmlFor="email"><strong>Email</strong></label>
             <input
               id="email"
@@ -32,13 +33,13 @@ function Login() {
               placeholder="Enter email"
               autoComplete="off"
               name="email"
-              className="input"
+              className={styles.input}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
-          <div className="form-group">
+          <div className={styles["form-group"]}>
             <label htmlFor="password"><strong>Password</strong></label>
             <input
               id="password"
@@ -46,18 +47,22 @@ function Login() {
               placeholder="Enter password"
               autoComplete="off"
               name="password"
-              className="input"
+              className={styles.input}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
-          <button type="submit" className="btn-submit">Login</button>
+          <button type="submit" className={styles["btn-submit"]}>
+            Login
+          </button>
         </form>
 
-        <p className="footer-text">
+        <p className={styles["footer-text"]}>
           Create an account?{" "}
-          <Link to="/register" className="text-link">Register</Link>
+          <Link to="/register" className={styles["text-link"]}>
+            Register
+          </Link>
         </p>
       </div>
     </div>

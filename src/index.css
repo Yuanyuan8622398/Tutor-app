@@ -167,3 +167,47 @@ body{
 
 /* footer */
 .app-footer{ margin-top:28px; text-align:center; color:var(--muted); font-size:13px; padding-bottom:40px }
+
+.mb-8 {
+  margin-bottom: 8px;
+}
+.mb-12 {
+  margin-bottom: 12px;
+}
+.mb-16 {
+  margin-bottom: 16px;
+}
+
+.form-row {
+  display: flex;
+  align-items: flex-start; /* 顶部对齐 */
+  gap: 8px; /* label 和输入框之间的间隔 */
+}
+
+.form-row label {
+  width: 110px;   /* 固定宽度，所有 label 左侧对齐 */
+  text-align: right;
+  padding-top: 6px; /* 让文字和输入框内容对齐 */
+}
+
+/* 统一 input / textarea / select 的风格 */
+.form-row input,
+.form-row textarea,
+.form-row select {
+  flex: 1; /* 占满右边空间 */
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.form-row textarea {
+  min-height: 80px; /* 让多行输入框更明显 */
+  resize: vertical; /* 允许上下拉伸 */
+}
+
+.no-caret {
+  caret-color: transparent; /* 隐藏输入框里的竖线光标 */
+}
