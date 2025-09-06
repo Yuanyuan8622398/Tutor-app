@@ -1,6 +1,7 @@
 // src/History.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { useData } from "./DataProvider";
+import { Link } from "react-router-dom";
 
 function Modal({ children, onClose }) {
   return (
@@ -56,7 +57,24 @@ export default function History() {
 
   return (
     <div className="container">
-      <h2>My Booking History</h2>
+      <div
+        style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "300px", // Logo 和文字间距
+        marginBottom: "16px",
+        marginTop: "10px",
+        }}
+      >
+      <Link to="/home">
+        <img
+          src="/logo.png"
+          alt="Logo"
+          style={{ width: 100, height: 45, objectFit: "contain" }}
+        />
+      </Link>
+      <h2 style={{ margin: 0, fontSize: 30 }}>My Booking</h2>
+    </div>
 
       {bookings.length === 0 ? (
         <p style={{ color: "#6b7280", marginTop: 8 }}>No bookings yet</p>

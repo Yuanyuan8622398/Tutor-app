@@ -17,6 +17,8 @@ const SAMPLE_TUTORS = [
     available: true,
     availableTimes: ["14:00-17:00", "19:00-20:00"],
     bookedCount: 12,
+    year_level: "",
+    academic_title: "Professor"
   },
   {
     id: 2,
@@ -30,6 +32,8 @@ const SAMPLE_TUTORS = [
     available: true,
     availableTimes: ["19:00-20:00"],
     bookedCount: 5,
+    year_level: "",
+    academic_title: "PhD"
   },
   {
     id: 3,
@@ -43,6 +47,8 @@ const SAMPLE_TUTORS = [
     available: false,
     availableTimes: ["14:00-17:00"],
     bookedCount: 20,
+    year_level: "Year 3",
+    academic_title: ""
   },
   {
     id: 4,
@@ -55,7 +61,9 @@ const SAMPLE_TUTORS = [
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2NpzIdiJcNOVYQKeJ3cn8tK4VG7U8sAXoIQ&s",
     available: true,
     availableTimes: ["11:00-12:00"],
-    bookedCount: 7
+    bookedCount: 7,
+    year_level: "Year 3",
+    academic_title: ""
   },
   {
     id: 5,
@@ -68,38 +76,70 @@ const SAMPLE_TUTORS = [
     available: false,
     availableTimes: ["21:00-23:00"],
     bookedCount: 17,
+    year_level: "Year 4",
+    academic_title: ""
   },
 ];
 
-function TutorCard({ tutor, onView }) {
-  const renderStars = (rating) => {
-    const fullStars = Math.floor(rating);
-    const halfStar = rating - fullStars >= 0.5;
-    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-    return (
-      <>
-        {"★".repeat(fullStars)}
-        {halfStar && <span style={{ color: "gold" }}>☆</span>}
-        {"☆".repeat(emptyStars)}
-      </>
-    );
-  };
+const SAMPLE_COMMENTS = {
+  1: [
+    {
+      id: 1,
+      avatar: "https://i.pravatar.cc/40?img=5",
+      username: "Alice",
+      rating: 5.0,
+      text: "Emily is a great tutor! She explains everything clearly.",
+    },
+    {
+      id: 2,
+      avatar: "http://img.touxiangkong.com/uploads/allimg/2022021820/cmnxkq5k5ga.jpg",
+      username: "Ben",
+      rating: 4.8,
+      text: "Good at math but sometimes replies a bit slow.",
+    },
+  ],
+  2: [
+    {
+      id: 3,
+      avatar: "https://i.pravatar.cc/40?img=7",
+      username: "Charlie",
+      rating: 4.5,
+      text: "Very patient and helpful in biology.",
+    },
+  ],
+};
 
+
+function StarRating({ rating }) {
+  const fullStars = Math.floor(rating);
+  const halfStar = rating - fullStars >= 0.5;
+  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+  return (
+    <span style={{ color: "gold" }}>
+      {"★".repeat(fullStars)}
+      {halfStar && <span style={{ color: "gold" }}>☆</span>}
+      {"☆".repeat(emptyStars)}
+    </span>
+  );
+}
+
+function TutorCard({ tutor, onView}) {
   return (
     <div className="card">
       <div className="top">
         <img className="avatar" src={tutor.avatar} alt={tutor.name} />
         <div>
           <h3>{tutor.name}</h3>
-          <div className="subjects">{tutor.subjects.join(" • ")}</div>
+          <div className="subjects">{[tutor.year_level || tutor.academic_title, ...tutor.subjects].filter(Boolean).join(" • ")}</div>
           <div className="available-times" style={{ whiteSpace: "nowrap" }}>
             {tutor.availableTimes.join(" | ")}
           </div>
         </div>
         <div className="rate">
           <div style={{ display: "flex", alignItems: "center", fontSize: 14, marginBottom: 4 }}>
-            <span style={{ color: "gold", marginRight: 4 }}>
-              {renderStars(tutor.rating)}
+            <span style={{ marginRight: 4 }}>
+              <StarRating rating={tutor.rating} />
             </span>
             <span style={{ color: "#111827" }}>{tutor.rating.toFixed(1)}</span>
           </div>
@@ -194,6 +234,8 @@ export default function App() {
   const [selectedSubject, setSelectedSubject] = useState("");
   const [msgInput, setMsgInput] = useState("");
   const chatRef = useRef(null);
+  const [openComment, setOpenComment] = useState(false);
+
 
   useEffect(() => {
     if (selected) {
@@ -396,123 +438,205 @@ export default function App() {
 
         {selected && (
           <Modal onClose={closeModal}>
+            {/* ⭐ 外层 flex，分左右两栏 */}
             <div style={{ display: "flex", gap: 16 }}>
-              <img
-                src={selected.avatar}
-                style={{
-                  width: 112,
-                  height: 112,
-                  borderRadius: 999,
-                  objectFit: "cover",
-                }}
-                alt=""
-              />
-              <div style={{ flex: 1 }}>
-                <h3 style={{ margin: 0, fontSize: 20 }}>{selected.name}</h3>
-                <div style={{ color: "#6b7280", marginTop: 6 }}>
-                  {selected.subjects.join(" • ")}
-                </div>
-                <div style={{ color: "#374151", fontSize: 13, marginTop: 4, whiteSpace: "nowrap" }}>
-                  {selected.availableTimes.join(" | ")}
-                </div>
-                <p style={{ marginTop: 12 }}>{selected.about}</p>
-                {selected.availableTimes.length > 0 && (
-              <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
-                <select
-                  value={selectedSubject}
-                  onChange={(e) => setSelectedSubject(e.target.value)}
+              {/* ⭐ Tutor + Chat 区域，宽度会在 openComment=true 时缩小 */}
+              <div style={{ flex: openComment ? 2 : 1 }}>
+                <img
+                  src={selected.avatar}
                   style={{
-                    flex: 1,
-                    padding: 8,
-                    borderRadius: 8,
-                    border: "1px solid #e5e7eb",
+                    width: 112,
+                    height: 112,
+                    borderRadius: 999,
+                    objectFit: "cover",
                   }}
-                >
-                  <option value="">Select Subject</option>
-                  {selected.subjects.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  value={selectedTime}
-                  onChange={(e) => setSelectedTime(e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: 8,
-                    borderRadius: 8,
-                    border: "1px solid #e5e7eb",
-                  }}
-                >
-                  <option value="">Select Time</option>
-                  {selected.availableTimes.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-                <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
-                  <button
-                    className="btn btn-book"
-                    onClick={() => handleBook(selected)}
+                  alt=""
+                />
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ margin: 0, fontSize: 20 }}>{selected.name}</h3>
+                  <div style={{ color: "#6b7280", marginTop: 6 }}>
+                    {[selected.year_level || selected.academic_title, ...selected.subjects]
+                      .filter(Boolean)
+                      .join(" • ")}
+                  </div>
+                  <div
+                    style={{
+                      color: "#374151",
+                      fontSize: 13,
+                      marginTop: 4,
+                      whiteSpace: "nowrap",
+                    }}
                   >
-                    Book Now
-                  </button>
-                  <button
-                    className="btn btn-view"
-                    onClick={() => setOpenBooking((s) => !s)}
-                  >
-                    Chat
-                  </button>
-                </div>
+                    {selected.availableTimes.join(" | ")}
+                  </div>
+                  <p style={{ marginTop: 12 }}>{selected.about}</p>
 
-                {openBooking && (
-                  <div className="chat-box">
-                    <div className="chat-messages" ref={chatRef}>
-                      {!(messagesMap?.[selected?.id]?.length) ? (
-                        <div style={{ color: "#6b7280" }}>
-                          No messages yet, start by saying hello!
-                        </div>
-                      ) : (
-                        (messagesMap[selected.id] || []).map((m) => (
-                          <div
-                            key={m.id}
-                            className={`chat-msg ${m.from === "me" ? "me" : "tutor"}`}
-                          >
-                            {m.text}
-                          </div>
-                        ))
-                      )}
-                    </div>
-
-                    <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                      <input
-                        value={msgInput}
-                        onChange={(e) => setMsgInput(e.target.value)}
-                        placeholder="Enter your message..."
+                  {selected.availableTimes.length > 0 && (
+                    <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
+                      {/* subject 下拉 */}
+                      <select
+                        value={selectedSubject}
+                        onChange={(e) => setSelectedSubject(e.target.value)}
                         style={{
                           flex: 1,
                           padding: 8,
                           borderRadius: 8,
                           border: "1px solid #e5e7eb",
                         }}
-                      />
-                      <button
-                        className="btn btn-view"
-                        onClick={() => handleSendMessage(selected.id)}
                       >
-                        Send
-                      </button>
+                        <option value="">Select Subject</option>
+                        {selected.subjects.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* time 下拉 */}
+                      <select
+                        value={selectedTime}
+                        onChange={(e) => setSelectedTime(e.target.value)}
+                        style={{
+                          flex: 1,
+                          padding: 8,
+                          borderRadius: 8,
+                          border: "1px solid #e5e7eb",
+                        }}
+                      >
+                        <option value="">Select Time</option>
+                        {selected.availableTimes.map((t) => (
+                          <option key={t} value={t}>
+                            {t}
+                          </option>
+                        ))}
+                      </select>
                     </div>
+                  )}
+
+                  {/* ⭐ 按钮组 */}
+                  <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+                    <button
+                      className="btn btn-book"
+                      onClick={() => handleBook(selected)}
+                    >
+                      Book Now
+                    </button>
+                    <button
+                      className="btn btn-view"
+                      onClick={() => setOpenBooking((s) => !s)}
+                    >
+                      Chat
+                    </button>
+                    {/* ⭐ 新增 Comment 按钮 */}
+                    <button
+                      className="btn"
+                      style={{ backgroundColor: "#374151", color: "white" }}
+                      onClick={() => setOpenComment((s) => !s)}
+                    >
+                      Comment
+                    </button>
                   </div>
-                )}
+
+                  {/* Chat 框 */}
+                  {openBooking && (
+                    <div className="chat-box">
+                      <div className="chat-messages" ref={chatRef}>
+                        {!(messagesMap?.[selected?.id]?.length) ? (
+                          <div style={{ color: "#6b7280" }}>
+                            No messages yet, start by saying hello!
+                          </div>
+                        ) : (
+                          (messagesMap[selected.id] || []).map((m) => (
+                            <div
+                              key={m.id}
+                              className={`chat-msg ${m.from === "me" ? "me" : "tutor"}`}
+                            >
+                              {m.text}
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                        <input
+                          value={msgInput}
+                          onChange={(e) => setMsgInput(e.target.value)}
+                          placeholder="Enter your message..."
+                          style={{
+                            flex: 1,
+                            padding: 8,
+                            borderRadius: 8,
+                            border: "1px solid #e5e7eb",
+                          }}
+                        />
+                        <button
+                          className="btn btn-view"
+                          onClick={() => handleSendMessage(selected.id)}
+                        >
+                          Send
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* ⭐ 评论区 */}
+              {openComment && (
+                <div
+                  style={{
+                    flex: 1,
+                    borderLeft: "1px solid #e5e7eb",
+                    paddingLeft: 16,
+                    maxHeight: "500px",
+                    overflowY: "auto",
+                  }}
+                >
+                  <h3 style={{ marginTop: 0 }}>Comments</h3>
+                  {!(SAMPLE_COMMENTS[selected.id]?.length) ? (
+                    <div style={{ color: "#6b7280" }}>No comments yet</div>
+                  ) : (
+                    SAMPLE_COMMENTS[selected.id].map((c) => (
+                      <div
+                        key={c.id}
+                        style={{
+                          display: "flex",
+                          gap: 10,
+                          marginBottom: 16,
+                          borderBottom: "1px solid #e5e7eb",
+                          paddingBottom: 8,
+                        }}
+                      >
+                        <img
+                          src={c.avatar}
+                          alt={c.username}
+                          style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                          }}
+                        />
+                        <div>
+                          <div style={{ fontWeight: "bold" }}>{c.username}</div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <span style={{ color: "#111827", fontSize: 14 }}>
+                              {c.rating.toFixed(1)}
+                            </span>
+                            <span style={{ color: "gold", fontSize: 14 }}>
+                              <StarRating rating={c.rating}/>
+                            </span>
+                          </div>
+                          <p style={{ margin: "4px 0" }}>{c.text}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           </Modal>
+
         )}
 
         <Toast toast={toast} />
