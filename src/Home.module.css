@@ -1,0 +1,129 @@
+.home {
+  font-family: sans-serif;
+}
+
+/* 顶部导航栏 */
+.navbar {
+  background-color: #fcb544; /* 橙色 */
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px 24px;
+}
+
+.navLinks a {
+  margin: 0 40px;
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
+
+.account {
+  cursor: pointer;
+  margin-right: 40px;
+  font-weight: bold;
+  position: relative;
+  z-index: 0;
+  display: inline-flex; /* inline-flex 保证文字和箭头在一行 */
+  align-items: center;  /* 垂直居中 */
+  font-size: 16px; 
+}
+
+.accountText {
+  line-height: 1;       /* 确保和箭头垂直居中 */
+}
+
+.arrow {
+  margin-left: 5px; /* 箭头和文字间距 */
+  font-size: 16px;
+  display: inline-block;
+  line-height: 1;        /* 垂直居中 */
+  transition: transform 0.2s ease; /* 点击可以加旋转动画 */
+}
+
+.accountWrapper {
+  position: relative;
+  margin-left: auto;
+}
+
+/* 下拉菜单 */
+.dropdownMenu {
+  position: absolute;
+  top: 290%; /* 紧贴导航栏下边缘 */
+  right: 5%;
+  transform: translateX(-10%); /* 往左微调，与 Account 对齐 */
+  background-color: #ffd27f; /* 浅色 */
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+  z-index: 1; /* 确保低于导航栏，不被覆盖 */
+  min-width: 180px;
+ /* 所有文字靠左 */
+}
+
+/* 菜单链接 */
+.dropdownMenu a {
+  display: block;
+  padding: 10px 20px;
+  color: #333;
+  text-decoration: none;
+  font-weight: bold;
+  margin: 0 10px;
+
+}
+
+/* 黑色分隔线，左右留空 */
+.dropdownMenu a + a {
+  border-top: 1px solid black;
+  margin: 0 10px; /* 左右留间距 */
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+}
+
+.dropdownMenu a:hover {
+  background-color: #ffcc66;
+}
+
+
+/* 主体内容 */
+.hero {
+  position: relative;
+  text-align: center;
+}
+
+.heroImg {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+}
+
+.heroText {
+  position: absolute;
+  top: 60%;
+  right: 70px;
+  text-align: right;
+  color: white;
+}
+
+.heroText h1 {
+  font-size: 45px;
+  margin: 0;
+}
+
+.heroText p {
+  font-size: 28px;
+  margin: 8px 0;
+}
+
+.btnBook {
+  padding: 10px 20px;
+  background-color: orange;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: bold;
+}

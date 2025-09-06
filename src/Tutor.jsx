@@ -2,10 +2,13 @@
 import React, { useState } from "react";
 import "./index.css"
 import styles from "./Tutor.module.css"
+import { Link } from "react-router-dom";
 
 export default function TutorDashboard() {
   const [profile, setProfile] = useState({
     name: "",
+    year_level: "",
+    academic_title: "",
     subjects: "",
     rate: "",
     about: "",
@@ -63,11 +66,13 @@ export default function TutorDashboard() {
       <header className="app-header" 
         style={{ display: "flex", alignItems: "center", gap: 1 }
       }>
-        <img 
-          src="/logo.png" 
-          alt="Logo" 
-          style={{ width: 60, height: 60, objectFit: "contain" }} 
-        />
+        <Link to="/home">
+          <img 
+            src="/logo.png" 
+            alt="Logo" 
+            style={{ width: 60, height: 60, objectFit: "contain" }} 
+          />
+        </Link>
         <h1 style={{ margin: 0 }}>Tutor Dashboard</h1>
         <div className="meta">Manage your services & bookings</div>
       </header>
@@ -132,6 +137,22 @@ export default function TutorDashboard() {
             value={profile.name}
             onChange={(e) => setProfile({ ...profile, name: e.target.value })}
             placeholder= "Your Name"
+          />
+        </div>
+        <div className="form-row">
+          <label>Year level : </label>
+          <input
+            value={profile.year_level}
+            onChange={(e) => setProfile({ ...profile, year_level: e.target.value })}
+            placeholder="Your year level ( e.g. Year 1 if not type - )"
+          />
+        </div>
+        <div className="form-row">
+          <label>Academic title : </label>
+          <input
+            value={profile.academic_title}
+            onChange={(e) => setProfile({ ...profile, academic_title: e.target.value })}
+            placeholder="Your academic title ( e.g. Professor if not type - )"
           />
         </div>
         <div className="form-row">

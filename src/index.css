@@ -19,7 +19,7 @@ body{
   color:#0f172a;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
-  padding:18px;
+  padding:0px;
 }
 
 /* wrapper container */
@@ -87,6 +87,7 @@ body{
   display:flex;
   flex-direction:column;
   gap:10px;
+  position: relative;
 }
 .card .top{
   display:flex;
@@ -103,6 +104,12 @@ body{
 }
 .card h3{ margin:0; font-size:18px; font-weight:600 }
 .card .subjects{ font-size:13px; color:var(--muted) }
+.card .available-times {
+  font-size: 13px;       /* 跟科目差不多 */
+  color: #4b5563;        /* 比科目深一点 */
+  margin-top: 4px; 
+  white-space: nowrap;      /* 与科目间距 */
+}
 .card .rate{ margin-left:auto; text-align:right; }
 .card .rate .price{ font-size:13px; color:#111827 }
 .card .status{ font-size:12px; margin-top:6px }
@@ -185,7 +192,7 @@ body{
 }
 
 .form-row label {
-  width: 110px;   /* 固定宽度，所有 label 左侧对齐 */
+  width: 120px;   /* 固定宽度，所有 label 左侧对齐 */
   text-align: right;
   padding-top: 6px; /* 让文字和输入框内容对齐 */
 }

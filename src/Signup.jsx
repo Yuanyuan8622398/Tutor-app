@@ -18,7 +18,9 @@ function Signup() {
   return (
     <div className={styles["page-root"]}>
       <div className={styles["logo-wrap"]}  style={{ marginLeft: 100, display: "flex", alignItems: "center", gap: 2}}>
-        <img src="/logo.png" alt="Logo" style={{ width: 150, height: 60, objectFit: "contain" }} />
+        <Link to="/home">
+          <img src="/logo.png" alt="Logo" style={{ width: 150, height: 60, objectFit: "contain" }} />
+        </Link>
         <img src="/logo1.png" alt="Logo" style={{ width: 100, objectFit: "contain" }} />
       </div>
 
