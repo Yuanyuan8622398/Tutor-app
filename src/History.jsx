@@ -23,6 +23,56 @@ export default function History() {
   const [selected, setSelected] = useState(null); // 当前点击的 booking
   const [msgInput, setMsgInput] = useState("");
   const chatRef = useRef(null);
+  const [reviews, setReviews] = useState({}); 
+  const [reviewing, setReviewing] = useState(null); // 当前打开的 review modal
+  const [reviewRating, setReviewRating] = useState("");
+  const [reviewComment, setReviewComment] = useState("");
+  const [toast, setToast] = useState(null);
+  const [cancelling, setCancelling] = useState(null); 
+  const [cancelReason, setCancelReason] = useState("");
+  const [toastType, setToastType] = useState("success"); // "success" | "error"
+
+
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    if (reviewing) {
+      setReviewRating(reviews[reviewing.id]?.rating || "");
+      setReviewComment(reviews[reviewing.id]?.comment || "");
+    }
+  }, [reviewing, reviews]);
+
+  useEffect(() => {
+    setBookings((prev) =>
+      prev.map((b) =>
+      b.id === 1757184559401 // ← 这里换成你要修改的 booking 的 id
+        ? { ...b, status: "Accepted" }
+        : b   
+      )
+    );
+  }, [setBookings]);
+
+  useEffect(() => {
+  setBookings((prev) =>
+    prev.map((b) =>
+      b.id === 1757181887643 // ← 换成目标 booking 的 id
+        ? { ...b, status: "Rejected", reason: "No time" }
+        : b
+    )
+  );
+}, [setBookings]);
+
+
+  useEffect(() => {
+    console.log("📌 Current bookings:", bookings);
+  }, [bookings]);
+
 
   useEffect(() => {
     if (chatRef.current) {
@@ -57,24 +107,20 @@ export default function History() {
 
   return (
     <div className="container">
-      <div
-        style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "300px", // Logo 和文字间距
-        marginBottom: "16px",
-        marginTop: "10px",
-        }}
-      >
-      <Link to="/home">
-        <img
-          src="/logo.png"
-          alt="Logo"
-          style={{ width: 100, height: 45, objectFit: "contain" }}
+      <header 
+        className="app-header" 
+        style={{ display: "flex", alignItems: "center", gap: 1 }
+        }>
+        <Link to="/home">
+        <img 
+          src="/logo.png" 
+          alt="Logo" 
+          style={{ width: 60, height: 60, objectFit: "contain" }} 
         />
-      </Link>
-      <h2 style={{ margin: 0, fontSize: 30 }}>My Booking</h2>
-    </div>
+        </Link>
+        <h1 style={{ margin: 0 }}>My Booking</h1>
+        <div className="meta">Tailored tutoring, faster progress</div>
+      </header>
 
       {bookings.length === 0 ? (
         <p style={{ color: "#6b7280", marginTop: 8 }}>No bookings yet</p>
@@ -94,6 +140,30 @@ export default function History() {
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 600, fontSize: 14 }}>
                 {b.tutorName}
+                <span
+                  style={{
+                  marginLeft: 8,
+                  color:
+                    b.status === "Accepted"
+                      ? "#059669"
+                      : b.status === "Rejected"
+                      ? "#ef4444"
+                      : b.status === "Cancelled" 
+                      ? "#ef4444"
+                      : "#6b7280",
+                    fontSize: 12,
+                  }}
+                >
+                  Status:{" "}
+                  {b.status === "Accepted"
+                    ? "Accepted"
+                    : b.status === "Rejected"
+                    ? "Rejected"
+                    : b.status === "Cancelled" 
+                    ? `Cancelled${b.reason ? ` (${b.reason})` : ""}` // 🔥 显示 reason
+                    : "Pending"}
+                  {b.status === "Rejected" && b.reason ? ` (${b.reason})` : ""}
+                </span>
               </div>
               <div
                 style={{
@@ -112,24 +182,186 @@ export default function History() {
 
             {/* ✅ 按钮组：Cancel + Chat */}
             <div style={{ display: "flex", gap: 8 }}>
+              {b.status !== "Rejected" && b.status !== "Cancelled" && (
               <button
                 className="btn btn-danger"
-                onClick={() =>
-                  setBookings((p) => p.filter((x) => x.id !== b.id))
-                }
+                onClick={() => {
+                  setCancelling(b);   // 打开 ModalCancel
+                  setCancelReason(""); // 重置输入框
+                }}
               >
                 Cancel
               </button>
+              )}
               <button
                 className="btn btn-view"
                 onClick={() => setSelected(b)}
               >
                 Chat
               </button>
+              {(b.status === "Accepted" || b.status === "Rejected") && b.status !== "Cancelled" && (
+                <button
+                className="btn"
+                style={{ backgroundColor: "#059669", color: "white" }}
+                onClick={() => setReviewing(b)}
+                >
+                Review
+                </button>
+              )}
             </div>
           </div>
         ))
       )}
+
+      {reviewing && (
+        <Modal onClose={() => setReviewing(null)}>
+          <h3 style={{ margin: 0 }}>Review {reviewing.tutorName}</h3>
+    
+    {/* Rating 输入框 */}
+          <div style={{ marginTop: 12 }}>
+            <label style={{ fontWeight: 500 }}>Rating (1.0 - 5.0)</label>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <input
+                type="number"
+                step="0.1"
+                min="1.0"
+                max="5.0"
+                value={reviewRating}
+                onChange={(e) => {
+                  let value = parseFloat(e.target.value);
+                  if (isNaN(value)) {
+                    setReviewRating("");
+                    return;
+                  }
+                  if (value < 1.0) value = 1.0;
+                  if (value > 5.0) value = 5.0;
+                  setReviewRating(value.toFixed(1)); // 保留一位小数
+                }}
+                style={{
+                  width: 80,
+                  padding: 6,
+                  borderRadius: 6,
+                  border: "1px solid #e5e7eb",
+                }}
+              />
+              {/* 五颗星 */}
+              <div style={{ fontSize: 20, color: "gold" }}>
+                {"★".repeat(Math.floor(reviewRating || 0))}
+                {"☆".repeat(5 - Math.floor(reviewRating || 0))}
+              </div>
+            </div>
+          </div>
+
+          {/* Comment 输入框 */}
+          <div style={{ marginTop: 12 }}>
+            <label style={{ fontWeight: 500 }}>Comment</label>
+            <textarea
+              value={reviewComment}
+              onChange={(e) => setReviewComment(e.target.value)}
+              rows={3}
+              style={{
+                width: "100%",
+                padding: 8,
+                borderRadius: 6,
+                border: "1px solid #e5e7eb",
+                marginTop: 4,
+               }}
+            />
+          </div>
+
+          {/* 底部按钮 */}
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16, gap: 8 }}>
+            <button
+                className="btn"
+                style={{ backgroundColor: "#3b82f6", color: "white" }}
+                onClick={() => {
+                    if (!reviewRating) {
+                    setToast("Please give a rating");
+                    setToastType("error");   // 🚨 红色
+                    return;
+                    }
+                    setReviews((prev) => ({
+                    ...prev,
+                    [reviewing.id]: {
+                        rating: parseFloat(reviewRating),
+                        comment: reviewComment,
+                    },
+                    }));
+                    setToast("Review sent successfully!");
+                    setToastType("success");   // ✅ 绿色
+                    setReviewing(null);
+                }}
+                >
+                Send
+                </button>
+
+           </div>
+        </Modal>
+      )}
+
+      {cancelling && (
+  <Modal onClose={() => setCancelling(null)}>
+    <h3 style={{ margin: 0 }}>Cancel {cancelling.tutorName}</h3>
+
+    {/* Reason 输入框 */}
+    <div style={{ marginTop: 12 }}>
+      <label style={{ fontWeight: 500 }}>Reason</label>
+      <textarea
+        value={cancelReason}
+        onChange={(e) => setCancelReason(e.target.value)}
+        rows={3}
+        style={{
+          width: "100%",
+          padding: 8,
+          borderRadius: 6,
+          border: "1px solid #e5e7eb",
+          marginTop: 4,
+        }}
+      />
+    </div>
+
+    {/* 底部按钮 */}
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "flex-end",
+        marginTop: 16,
+        gap: 8,
+      }}
+    >
+      <button
+        className="btn"
+        style={{ backgroundColor: "#ef4444", color: "white" }} // 红色 cancel
+        onClick={() => {
+          if (!cancelReason.trim()) {
+            setToast("Please give a reason");
+            setToastType("error");
+            return;
+          }
+          // ✅ 执行原本的删除逻辑
+          setBookings((prev) =>
+            prev.map((x) =>
+              x.id === cancelling.id
+                ? { ...x, status: "Cancelled", reason: cancelReason }
+                : x
+            )
+          );
+
+
+          // ✅ 成功提示
+          setToast("Booking cancelled successfully!");
+          setToastType("success");
+
+          // 关闭 modal
+          setCancelling(null);
+        }}
+      >
+        Cancel
+      </button>
+    </div>
+  </Modal>
+      )}
+
 
       {selected && (
         <Modal onClose={() => setSelected(null)}>
@@ -178,6 +410,24 @@ export default function History() {
           </div>
         </Modal>
       )}
+
+      {toast && (
+        <div
+            style={{
+            position: "fixed",
+            bottom: 20,
+            right: 20,
+            backgroundColor: toastType === "error" ? "#ef4444" : "#059669", 
+            color: "white",
+            padding: "10px 16px",
+            borderRadius: 8,
+            fontWeight: "bold"
+            }}
+        >
+            {toast}
+        </div>
+        )}
+
     </div>
   );
 }

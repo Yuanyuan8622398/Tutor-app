@@ -15,7 +15,7 @@ const SAMPLE_TUTORS = [
       "I am  passionate about teaching and skilled at breaking down problems step by step from the basics to advanced levels. I can explain in both Chinese and simple English.",
     avatar: "https://images.openai.com/thumbnails/url/HsrOhXicu1mUUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw62TEo1cPOKLDcOMXf3TA5NDjdyjAz2jjDTDQz3LU_2ysuLivcILYp3TczMCywtj_DKSczIjw8uTdNVKwYAqx8pLQ?utm_source=chatgpt.com",
     available: true,
-    availableTimes: ["14:00-17:00", "19:00-20:00"],
+    availableTimes: ["14:00-17:00"],
     bookedCount: 12,
     year_level: "",
     academic_title: "Professor"
@@ -311,7 +311,12 @@ export default function App() {
     }
 
     const duplicate = bookings.some(
-      (b) => b.tutorId === tutor.id && b.time === selectedTime
+      (b) => 
+        b.tutorId === tutor.id && 
+        b.time === selectedTime &&
+        b.subject === selectedSubject &&
+        b.status !== "Rejected" &&  
+        b.status !== "Cancelled"
     );
     if (duplicate) {
       setToast({
@@ -328,6 +333,7 @@ export default function App() {
       subject: selectedSubject,
       time: selectedTime,
       createdAt: new Date().toISOString(),
+      status: "Pending",
     };
 
     const updated = [newBooking, ...bookings];
