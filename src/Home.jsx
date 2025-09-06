@@ -37,7 +37,7 @@ function Home() {
             <div className={styles.dropdownMenu}>
               <Link to="/login">Login</Link>
               <Link to="/register">Create Account</Link>
-              <a href="#settings">Settings</a>
+              <Link to="/history">My Booking</Link>
             </div>
           )}
         </div>
