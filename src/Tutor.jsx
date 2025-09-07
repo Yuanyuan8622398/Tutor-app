@@ -6,8 +6,6 @@ import { Link } from "react-router-dom";
 import { useData } from "./DataProvider";
 
 export default function TutorDashboard() {
-  const { tutors, setTutors } = useData();
-
   const [profile, setProfile] = useState({
     name: "",
     year_level: "",
