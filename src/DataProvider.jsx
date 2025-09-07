@@ -4,11 +4,6 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 const DataContext = createContext();
 
 export function DataProvider({ children }) {
-  const [tutors, setTutors] = useState(() => {
-    const saved = localStorage.getItem("tutors");
-    return saved ? JSON.parse(saved) : [];
-  });
-  
   const [bookings, setBookings] = useState(() => {
     const saved = localStorage.getItem("bookings");
     return saved ? JSON.parse(saved) : [];
@@ -34,7 +29,7 @@ export function DataProvider({ children }) {
 
   return (
     <DataContext.Provider
-      value={{ tutors, setTutors, bookings, setBookings, messagesMap, setMessagesMap }}
+      value={{ bookings, setBookings, messagesMap, setMessagesMap }}
     >
       {children}
     </DataContext.Provider>
