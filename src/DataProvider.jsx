@@ -16,10 +16,6 @@ export function DataProvider({ children }) {
 
   // ✅ 自动保存到 localStorage
   useEffect(() => {
-    localStorage.setItem("tutors", JSON.stringify(tutors));
-  }, [tutors]);
-
-  useEffect(() => {
     localStorage.setItem("bookings", JSON.stringify(bookings));
   }, [bookings]);
 
