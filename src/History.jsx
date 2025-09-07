@@ -32,7 +32,25 @@ export default function History() {
   const [cancelReason, setCancelReason] = useState("");
   const [toastType, setToastType] = useState("success"); // "success" | "error"
 
+  useEffect(() => {
+  setBookings(prev =>
+    prev.map(b =>
+      b.id === 1757250817392
+        ? { ...b, status: "Accepted" }
+        : b
+    )
+  );
+}, [setBookings]);
 
+  useEffect(() => {
+  setBookings(prev =>
+    prev.map(b =>
+      b.id === 1757251981477
+        ? { ...b, status: "Rejected", reason: "No time" }
+        : b
+    )
+  );
+}, [setBookings]);
 
   useEffect(() => {
     if (toast) {
