@@ -42,6 +42,16 @@ export default function History() {
   );
 }, [setBookings]);
 
+    useEffect(() => {
+  setBookings(prev =>
+    prev.map(b =>
+      b.id === 1757250756001
+        ? { ...b, status: "Completed" }
+        : b
+    )
+  );
+}, [setBookings]);
+
   useEffect(() => {
   setBookings(prev =>
     prev.map(b =>
