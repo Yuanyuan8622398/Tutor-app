@@ -1,10 +1,13 @@
 // src/TutorDashboard.jsx
-import React, { useState } from "react";
-import "./index.css"
-import styles from "./Tutor.module.css"
+import React, { useState, useEffect } from "react";
+import "./index.css";
+import styles from "./Tutor.module.css";
 import { Link } from "react-router-dom";
+import { useData } from "./DataProvider";
 
 export default function TutorDashboard() {
+  const { tutors, setTutors } = useData();
+
   const [profile, setProfile] = useState({
     name: "",
     year_level: "",
@@ -21,11 +24,29 @@ export default function TutorDashboard() {
   const [slotEnd, setSlotEnd] = useState("");
   const [toast, setToast] = useState(null);
 
+  useEffect(() => {
+    if (tutors?.length > 0) {
+      setProfile(tutors[0]); // 默认加载第一个 tutor
+    }
+  }, [tutors]);
+
+  function handleSaveProfile(profileData) {
+    setTutors((prev) => {
+      const exist = prev.find((t) => t.id === profileData.id);
+      if (exist) {
+        return prev.map((t) =>
+          t.id === profileData.id ? profileData : t
+        );
+      }
+      return [...prev, profileData];
+    });
+  }
+
   const [bookings, setBookings] = useState([
     { id: 1, student: "Alice", time: "2025-09-06 14:00", status: "pending" },
     { id: 2, student: "Bob", time: "2025-09-07 10:00", status: "pending" },
   ]);
-  
+
   // 改为每个 bookingId 有独立 chat
   const [chats, setChats] = useState({
     1: [{ id: 1, from: "Alice", text: "Hello, can I ask about calculus?" }],
@@ -37,40 +58,42 @@ export default function TutorDashboard() {
   function handleBookingResponse(id, accept, reason = "") {
     setBookings((prev) =>
       prev.map((b) =>
-        b.id === id ? { ...b, status: accept ? "accepted" : `rejected: ${reason}` } : b
+        b.id === id
+          ? { ...b, status: accept ? "accepted" : `rejected: ${reason}` }
+          : b
       )
     );
   }
 
   function handleSendMessage() {
-  // 如果 msgInput 是空的（去掉前后空格后为空），或者没有选中的聊天窗口（activeChatId === null）
-  // 就直接 return，不发送任何消息。
+    // 如果 msgInput 是空的，或者没有选中的聊天窗口
     if (!msgInput.trim() || activeChatId === null) return;
 
-  // 更新 chats 状态
+    // 更新 chats 状态
     setChats((prev) => ({
-      ...prev, // 保留之前的所有聊天记录
-      [activeChatId]: [ // 针对当前打开的 chat（activeChatId）
-        ...(prev[activeChatId] || []), // 取出它已有的消息，如果没有就用空数组
-        { id: Date.now(), from: "me", text: msgInput }, // 新增一条消息
+      ...prev,
+      [activeChatId]: [
+        ...(prev[activeChatId] || []),
+        { id: Date.now(), from: "me", text: msgInput },
       ],
     }));
 
-  // 清空输入框
+    // 清空输入框
     setMsgInput("");
   }
 
-
   return (
     <div className={styles.container}>
-      <header className="app-header" 
-        style={{ display: "flex", alignItems: "center", gap: 1 }
-      }>
+      {/* Header */}
+      <header
+        className="app-header"
+        style={{ display: "flex", alignItems: "center", gap: 1 }}
+      >
         <Link to="/home">
-          <img 
-            src="/logo.png" 
-            alt="Logo" 
-            style={{ width: 60, height: 60, objectFit: "contain" }} 
+          <img
+            src="/logo.png"
+            alt="Logo"
+            style={{ width: 60, height: 60, objectFit: "contain" }}
           />
         </Link>
         <h1 style={{ margin: 0 }}>Tutor Dashboard</h1>
@@ -80,104 +103,125 @@ export default function TutorDashboard() {
       {/* Profile Settings */}
       <section className="bookings">
         <h2>Profile Settings</h2>
-        <div className="form-row" style={{ justifyContent: "center", marginBottom: 16 }}>
+
+        {/* Avatar */}
+        <div
+          className="form-row"
+          style={{ justifyContent: "center", marginBottom: 16 }}
+        >
           <label htmlFor="avatar-upload" style={{ cursor: "pointer" }}>
             {profile.avatar ? (
-                <img
+              <img
                 src={profile.avatar}
                 alt="avatar"
                 style={{
-                    width: 100,
-                    height: 100,
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                    boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
+                  width: 100,
+                  height: 100,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
                 }}
-                />
+              />
             ) : (
-                <div
+              <div
                 style={{
-                    width: 100,
-                    height: 100,
-                    borderRadius: "50%",
-                    border: "2px dashed #ccc",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 32,
-                    color: "#888",
+                  width: 100,
+                  height: 100,
+                  borderRadius: "50%",
+                  border: "2px dashed #ccc",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 32,
+                  color: "#888",
                 }}
-                >
+              >
                 +
-                </div>
+              </div>
             )}
-            </label>
-            <input
+          </label>
+          <input
             id="avatar-upload"
             type="file"
             accept="image/*"
             style={{ display: "none" }}
             onChange={(e) => {
-                const file = e.target.files[0];
-                if (file) {
+              const file = e.target.files[0];
+              if (file) {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
-                    setProfile({ ...profile, avatar: ev.target.result }); // 保存 Base64 图片
+                  setProfile({ ...profile, avatar: ev.target.result });
                 };
                 reader.readAsDataURL(file);
-                }
+              }
             }}
-            />
+          />
         </div>
 
-
+        {/* Name */}
         <div className="form-row">
           <label>Name : </label>
           <input
             value={profile.name}
             onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-            placeholder= "Your Name"
+            placeholder="Your Name"
           />
         </div>
+
+        {/* Year Level */}
         <div className="form-row">
           <label>Year level : </label>
           <input
             value={profile.year_level}
-            onChange={(e) => setProfile({ ...profile, year_level: e.target.value })}
+            onChange={(e) =>
+              setProfile({ ...profile, year_level: e.target.value })
+            }
             placeholder="Your year level ( e.g. Year 1 if not type - )"
           />
         </div>
+
+        {/* Academic Title */}
         <div className="form-row">
           <label>Academic title : </label>
           <input
             value={profile.academic_title}
-            onChange={(e) => setProfile({ ...profile, academic_title: e.target.value })}
+            onChange={(e) =>
+              setProfile({ ...profile, academic_title: e.target.value })
+            }
             placeholder="Your academic title ( e.g. Professor if not type - )"
           />
         </div>
+
+        {/* Subjects */}
         <div className="form-row">
           <label>Subjects : </label>
           <input
             value={profile.subjects}
-            onChange={(e) => setProfile({ ...profile, subjects: e.target.value })}
-            placeholder= "Mathematic / Physic"
+            onChange={(e) =>
+              setProfile({ ...profile, subjects: e.target.value })
+            }
+            placeholder="Mathematic / Physic"
           />
         </div>
+
+        {/* Rate */}
         <div className="form-row">
           <label>Rate (RM/hr) : </label>
           <input
             type="number"
             value={profile.rate}
             onChange={(e) => {
-                let val = Math.floor(Number(e.target.value)); 
-                if (val < 0) val = 0;
-                setProfile({ ...profile, rate: val });
+              let val = Math.floor(Number(e.target.value));
+              if (val < 0) val = 0;
+              setProfile({ ...profile, rate: val });
             }}
             placeholder="0"
-            onKeyDown={(e) => e.preventDefault()} 
+            onKeyDown={(e) => e.preventDefault()}
             className="no-caret"
           />
         </div>
+
+        {/* About */}
         <div className="form-row">
           <label>About : </label>
           <textarea
@@ -187,6 +231,8 @@ export default function TutorDashboard() {
             className="mb-8"
           />
         </div>
+
+        {/* Status */}
         <div className="form-row">
           <label>Status : </label>
           <select
@@ -199,48 +245,71 @@ export default function TutorDashboard() {
             <option value="false">Unavailable</option>
           </select>
         </div>
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 20 }}>
+
+        {/* Save Button */}
+        <div
+          style={{ display: "flex", justifyContent: "flex-end", marginTop: 20 }}
+        >
           <button
             className="btn btn-save"
             style={{
-                backgroundColor: "#007bff",
-                color: "white",
-                padding: "8px 12px",
-                border: "none",
-                borderRadius: 8,
-                cursor: "pointer",
-                fontSize: 15,
-                
+              backgroundColor: "#007bff",
+              color: "white",
+              padding: "8px 12px",
+              border: "none",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontSize: 15,
             }}
             onClick={() => {
-                console.log("Saving profile:", profile);
-                setToast("Profile saved successfully!");
-                setTimeout(() => setToast(null), 3000);
+              console.log("Saving profile:", profile);
+              const savedProfile = {
+                ...profile,
+                year_level: profile.year_level === "-" ? "" : profile.year_level,
+                academic_title:
+                  profile.academic_title === "-" ? "" : profile.academic_title,
+                rate: profile.rate || 0,
+                bookedCount: profile.bookedCount || 0,
+                id: profile.id || Date.now(),
+              };
+              setTutors((prev) => {
+                const exist = prev.find((t) => t.id === savedProfile.id);
+                if (exist) {
+                  return prev.map((t) =>
+                    t.id === savedProfile.id ? savedProfile : t
+                  );
+                } else {
+                  return [...prev, savedProfile];
+                }
+              });
+              setToast("Profile saved successfully!");
+              setTimeout(() => setToast(null), 3000);
             }}
-            >
+          >
             Save
           </button>
         </div>
       </section>
+
+      {/* Toast */}
       {toast && (
         <div
-            style={{
+          style={{
             position: "fixed",
             bottom: 20,
             right: 20,
-            backgroundColor: "#10b981", // 绿色
+            backgroundColor: "#10b981",
             color: "white",
             padding: "12px 20px",
             borderRadius: 8,
             boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
             fontWeight: "bold",
             zIndex: 1000,
-            }}
+          }}
         >
-            {toast}
+          {toast}
         </div>
-        )}
-
+      )}
 
       {/* Available Slots */}
       <section className="bookings">
@@ -249,93 +318,96 @@ export default function TutorDashboard() {
           <input
             type="number"
             value={slotStart}
-            onChange={(e) => setSlotStart(e.target.value.replace(/\D/g, "").slice(0, 4))}
+            onChange={(e) =>
+              setSlotStart(e.target.value.replace(/\D/g, "").slice(0, 4))
+            }
             placeholder="Start (e.g. 1400)"
             style={{ flex: 1 }}
           />
           <input
             type="number"
             value={slotEnd}
-            onChange={(e) => setSlotEnd(e.target.value.replace(/\D/g, "").slice(0, 4))}
+            onChange={(e) =>
+              setSlotEnd(e.target.value.replace(/\D/g, "").slice(0, 4))
+            }
             placeholder="End (e.g. 1500)"
             style={{ flex: 1 }}
           />
           <button
             className="btn btn-book"
             onClick={() => {
-                // 必须是4位
-                if (slotStart.length !== 4 || slotEnd.length !== 4) {
+              // 必须是4位
+              if (slotStart.length !== 4 || slotEnd.length !== 4) {
                 alert("Please enter the complete 24-hour time (e.g. 0930, 1500)");
                 return;
-                }
+              }
 
-                // 解析开始时间
-                const hhStart = parseInt(slotStart.slice(0, 2), 10);
-                const mmStart = parseInt(slotStart.slice(2, 4), 10);
+              // 解析开始时间
+              const hhStart = parseInt(slotStart.slice(0, 2), 10);
+              const mmStart = parseInt(slotStart.slice(2, 4), 10);
 
-                // 解析结束时间
-                const hhEnd = parseInt(slotEnd.slice(0, 2), 10);
-                const mmEnd = parseInt(slotEnd.slice(2, 4), 10);
+              // 解析结束时间
+              const hhEnd = parseInt(slotEnd.slice(0, 2), 10);
+              const mmEnd = parseInt(slotEnd.slice(2, 4), 10);
 
-                // 检查开始时间是否合法
-                if (hhStart > 23 || mmStart > 59) {
+              // 检查开始时间是否合法
+              if (hhStart > 23 || mmStart > 59) {
                 alert("Start time must be a valid 24-hour time");
                 return;
-                }
+              }
 
-                // 检查结束时间是否合法
-                if (hhEnd > 23 || mmEnd > 59) {
+              // 检查结束时间是否合法
+              if (hhEnd > 23 || mmEnd > 59) {
                 alert("End time must be a valid 24-hour time");
                 return;
-                }
+              }
 
-                // 转换成分钟比较
-                const startMinutes = hhStart * 60 + mmStart;
-                const endMinutes = hhEnd * 60 + mmEnd;
+              // 转换成分钟比较
+              const startMinutes = hhStart * 60 + mmStart;
+              const endMinutes = hhEnd * 60 + mmEnd;
 
-                if (startMinutes >= endMinutes) {
+              if (startMinutes >= endMinutes) {
                 alert("End time must be later than the start time");
                 return;
-                }
+              }
 
-                // 保存并清空
-                const newSlot = `${slotStart} - ${slotEnd}`;
-                setSlots([...slots, newSlot]);
-                setSlotStart("");
-                setSlotEnd("");
+              // 保存并清空
+              const newSlot = `${slotStart} - ${slotEnd}`;
+              setSlots([...slots, newSlot]);
+              setSlotStart("");
+              setSlotEnd("");
             }}
           >
-          Add
+            Add
           </button>
         </div>
         <ul style={{ marginTop: 8, paddingLeft: 16 }}>
           {slots.map((s, i) => (
             <li
-                key={i}
+              key={i}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 6,
+              }}
+            >
+              <span>{s}</span>
+              <button
                 style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 6,
+                  backgroundColor: "#dc2626",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  padding: "4px 8px",
+                  cursor: "pointer",
+                  fontSize: 12,
                 }}
-            >
-            <span>{s}</span>
-            <button
-                    style={{
-                    backgroundColor: "#dc2626", // 红色
-                    color: "white",
-                    border: "none",
-                    borderRadius: 6,
-                    padding: "4px 8px",
-                    cursor: "pointer",
-                    fontSize: 12,
-                    }}
-                    onClick={() => {
-                    // 删除该时间段
-                    setSlots(slots.filter((_, idx) => idx !== i));
-                    }}
-            >
-                    Delete
+                onClick={() => {
+                  setSlots(slots.filter((_, idx) => idx !== i));
+                }}
+              >
+                Delete
               </button>
             </li>
           ))}
@@ -343,7 +415,7 @@ export default function TutorDashboard() {
       </section>
 
       {/* Booking Requests */}
-      <section className="bookings" >
+      <section className="bookings">
         <h2>Booking Requests</h2>
         {bookings.length === 0 ? (
           <p style={{ color: "#6b7280" }}>No requests yet</p>
@@ -358,39 +430,41 @@ export default function TutorDashboard() {
                   Status: {b.status}
                 </div>
               </div>
-              
-            <div style={{ display: "flex", gap: 6 }}>
+
+              <div style={{ display: "flex", gap: 6 }}>
                 {b.status === "pending" && (
                   <>
-                  <button
-                    className="btn btn-book"
-                    onClick={() => handleBookingResponse(b.id, true)}
-                  >
-                    Accept
-                  </button>
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => {
-                      const reason = prompt("Reason for rejection?");
-                      if (reason) handleBookingResponse(b.id, false, reason);
-                    }}
-                  >
-                    Reject
-                  </button>
+                    <button
+                      className="btn btn-book"
+                      onClick={() => handleBookingResponse(b.id, true)}
+                    >
+                      Accept
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => {
+                        const reason = prompt("Reason for rejection?");
+                        if (reason) handleBookingResponse(b.id, false, reason);
+                      }}
+                    >
+                      Reject
+                    </button>
                   </>
                 )}
-                  <button
-                    className="btn btn-view"
-                    style={{ backgroundColor: "#007bff", color: "white" }}
-                    onClick={() => setActiveChatId(b.id)}
-                  >
+                <button
+                  className="btn btn-view"
+                  style={{ backgroundColor: "#007bff", color: "white" }}
+                  onClick={() => setActiveChatId(b.id)}
+                >
                   Chat
-                  </button>
-                </div>
+                </button>
+              </div>
             </div>
           ))
         )}
       </section>
+
+      {/* Chat Modal */}
       {activeChatId !== null && (
         <div
           style={{
@@ -405,101 +479,101 @@ export default function TutorDashboard() {
             justifyContent: "center",
             zIndex: 2000,
           }}
-        //   onClick={() => setActiveChatId(null)}  点击外面关闭
         >
-        <div
-          style={{
-            background: "white",
-            borderRadius: 8,
-            width: "700px",     // 固定宽度
-            height: "500px",
-            display: "flex",
-            flexDirection: "column",
-            padding: 16,
-            position: "relative", // 为了定位右上角的 ×
-          }}
-          onClick={(e) => e.stopPropagation()} // 阻止冒泡
-        >
-      {/* 关闭按钮 */}
-        <button
-          onClick={() => setActiveChatId(null)}
-          style={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-            background: "transparent",
-            border: "none",
-            fontSize: 20,
-            fontWeight: "bold",
-            cursor: "pointer",
-            color: "#555",
-          }}
-        >
-        ×
-        </button>
-
-        <h3 style={{ marginBottom: 8 }}>Chat</h3>
-        <div
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            border: "1px solid #e5e7eb",
-            borderRadius: 6,
-            padding: 8,
-            marginBottom: 8,
-            display: "flex",
-            flexDirection: "column",
-            gap: 6, // 每条消息之间留间距
-          }}
-        >
-          {(chats[activeChatId] || []).map((m) => (
-            <div
-              key={m.id}
+          <div
+            style={{
+              background: "white",
+              borderRadius: 8,
+              width: "700px",
+              height: "500px",
+              display: "flex",
+              flexDirection: "column",
+              padding: 16,
+              position: "relative",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 关闭按钮 */}
+            <button
+              onClick={() => setActiveChatId(null)}
               style={{
-                display: "flex",
-                justifyContent: m.from === "me" ? "flex-end" : "flex-start",
+                position: "absolute",
+                top: 8,
+                right: 8,
+                background: "transparent",
+                border: "none",
+                fontSize: 20,
+                fontWeight: "bold",
+                cursor: "pointer",
+                color: "#555",
               }}
             >
-              <div
-                style={{
-                  background: "#f3f4f6", // 浅灰色
-                  color: "#111",
-                  padding: "6px 10px",
-                  borderRadius: 12,
-                  maxWidth: "70%", // 防止太长
-                  wordWrap: "break-word", // 自动换行
-                }}
-              >
-                {m.text} {/* 不再显示用户名 */}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <input
-            value={msgInput}
-            onChange={(e) => setMsgInput(e.target.value)}
-            placeholder="Type your reply..."
-            style={{
-              flex: 1,
-              padding: 8,
-              borderRadius: 6,
-              border: "1px solid #e5e7eb",
-            }}
-          />
-          <button
-            className="btn btn-view"
-            onClick={handleSendMessage}
-            style={{ backgroundColor: "#007bff", color: "white" }}
-          >
-            Send
+              ×
             </button>
+
+            <h3 style={{ marginBottom: 8 }}>Chat</h3>
+            <div
+              style={{
+                flex: 1,
+                overflowY: "auto",
+                border: "1px solid #e5e7eb",
+                borderRadius: 6,
+                padding: 8,
+                marginBottom: 8,
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
+              }}
+            >
+              {(chats[activeChatId] || []).map((m) => (
+                <div
+                  key={m.id}
+                  style={{
+                    display: "flex",
+                    justifyContent:
+                      m.from === "me" ? "flex-end" : "flex-start",
+                  }}
+                >
+                  <div
+                    style={{
+                      background: "#f3f4f6",
+                      color: "#111",
+                      padding: "6px 10px",
+                      borderRadius: 12,
+                      maxWidth: "70%",
+                      wordWrap: "break-word",
+                    }}
+                  >
+                    {m.text}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                value={msgInput}
+                onChange={(e) => setMsgInput(e.target.value)}
+                placeholder="Type your reply..."
+                style={{
+                  flex: 1,
+                  padding: 8,
+                  borderRadius: 6,
+                  border: "1px solid #e5e7eb",
+                }}
+              />
+              <button
+                className="btn btn-view"
+                onClick={handleSendMessage}
+                style={{ backgroundColor: "#007bff", color: "white" }}
+              >
+                Send
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    )}
+      )}
 
-      {/* Messages */}
+      {/* Messages (旧版保留注释) */}
       {/* <section className="bookings">
         <h2>Messages</h2>
         <div className="chat-box">
@@ -507,7 +581,7 @@ export default function TutorDashboard() {
             {messages.map((m) => (
               <div
                 key={m.id}
-                className={`chat-msg ${m.from === "me" ? "me" : "tutor"}`}
+                className={chat-msg ${m.from === "me" ? "me" : "tutor"}}
               >
                 <b>{m.from}:</b> {m.text}
               </div>

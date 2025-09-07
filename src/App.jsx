@@ -315,8 +315,7 @@ export default function App() {
         b.tutorId === tutor.id && 
         b.time === selectedTime &&
         b.subject === selectedSubject &&
-        b.status !== "Rejected" &&  
-        b.status !== "Cancelled"
+        (b.status === "Pending" || b.status === "Accepted")
     );
     if (duplicate) {
       setToast({

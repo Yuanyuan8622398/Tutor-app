@@ -48,26 +48,6 @@ export default function History() {
     }
   }, [reviewing, reviews]);
 
-  useEffect(() => {
-    setBookings((prev) =>
-      prev.map((b) =>
-      b.id === 1757184559401 // ← 这里换成你要修改的 booking 的 id
-        ? { ...b, status: "Accepted" }
-        : b   
-      )
-    );
-  }, [setBookings]);
-
-  useEffect(() => {
-  setBookings((prev) =>
-    prev.map((b) =>
-      b.id === 1757181887643 // ← 换成目标 booking 的 id
-        ? { ...b, status: "Rejected", reason: "No time" }
-        : b
-    )
-  );
-}, [setBookings]);
-
 
   useEffect(() => {
     console.log("📌 Current bookings:", bookings);
@@ -122,96 +102,142 @@ export default function History() {
         <div className="meta">Tailored tutoring, faster progress</div>
       </header>
 
+      {bookings.length > 0 && (
+        <div style={{ marginTop: 12, marginBottom: 8, textAlign: "right" }}>
+          <button
+            className="btn"
+            style={{
+              backgroundColor: "#9ca3af",
+              color: "white",
+              height: 32,
+              padding: "0 12px",
+              borderRadius: 6,
+              fontSize: 14,
+              fontWeight: "bold",
+            }}
+            onClick={() => {
+              setBookings((prev) =>
+                prev.filter(
+                  (b) => b.status !== "Cancelled" && b.status !== "Rejected" && b.status !== "Completed"
+                )
+              );
+            }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
       {bookings.length === 0 ? (
         <p style={{ color: "#6b7280", marginTop: 8 }}>No bookings yet</p>
       ) : (
-        bookings.map((b) => (
-          <div
-            className="booking-item"
-            key={b.id}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "8px 0",
-              borderBottom: "1px solid #e5e7eb",
-            }}
-          >
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600, fontSize: 14 }}>
-                {b.tutorName}
-                <span
+        bookings.map((b) => {
+          // 🔹 处理状态显示
+          const displayStatus =
+            b.status === "Accepted" ? "Accepted" :
+            b.status === "Completed" ? "Completed" :
+            b.status; // Pending, Cancelled, Rejected 等保持原样
+
+          const statusColor =
+            displayStatus === "Accepted" || displayStatus === "Completed"
+              ? "#059669"
+              : displayStatus === "Rejected" || displayStatus === "Cancelled"
+              ? "#ef4444"
+              : "#6b7280";
+
+          return (
+            <div
+              className="booking-item"
+              key={b.id}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "8px 0",
+                borderBottom: "1px solid #e5e7eb",
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600, fontSize: 14 }}>
+                  {b.tutorName}
+                  <span
+                    style={{
+                      marginLeft: 8,
+                      color: statusColor,
+                      fontSize: 12,
+                    }}
+                  >
+                    Status:{" "}
+                    {displayStatus === "Cancelled" && b.reason
+                      ? `Cancelled (${b.reason})`
+                      : displayStatus}
+                    {b.status === "Rejected" && b.reason
+                      ? ` (${b.reason})`
+                      : ""}
+                  </span>
+                </div>
+                <div
                   style={{
-                  marginLeft: 8,
-                  color:
-                    b.status === "Accepted"
-                      ? "#059669"
-                      : b.status === "Rejected"
-                      ? "#ef4444"
-                      : b.status === "Cancelled" 
-                      ? "#ef4444"
-                      : "#6b7280",
                     fontSize: 12,
+                    color: "#6b7280",
+                    marginTop: 2,
                   }}
                 >
-                  Status:{" "}
-                  {b.status === "Accepted"
-                    ? "Accepted"
-                    : b.status === "Rejected"
-                    ? "Rejected"
-                    : b.status === "Cancelled" 
-                    ? `Cancelled${b.reason ? ` (${b.reason})` : ""}` // 🔥 显示 reason
-                    : "Pending"}
-                  {b.status === "Rejected" && b.reason ? ` (${b.reason})` : ""}
-                </span>
+                  <span>{b.subject}</span>
+                  <span style={{ margin: "0 8px" }}>|</span>
+                  <span>{b.time}</span>
+                  <span style={{ margin: "0 8px" }}>|</span>
+                  <span>{new Date(b.createdAt).toLocaleString()}</span>
+                </div>
               </div>
-              <div
-                style={{
-                  fontSize: 12,
-                  color: "#6b7280",
-                  marginTop: 2,
-                }}
-              >
-                <span>{b.subject}</span>
-                <span style={{ margin: "0 8px" }}>|</span>
-                <span>{b.time}</span>
-                <span style={{ margin: "0 8px" }}>|</span>
-                <span>{new Date(b.createdAt).toLocaleString()}</span>
-              </div>
-            </div>
 
-            {/* ✅ 按钮组：Cancel + Chat */}
-            <div style={{ display: "flex", gap: 8 }}>
-              {b.status !== "Rejected" && b.status !== "Cancelled" && (
-              <button
-                className="btn btn-danger"
-                onClick={() => {
-                  setCancelling(b);   // 打开 ModalCancel
-                  setCancelReason(""); // 重置输入框
-                }}
-              >
-                Cancel
-              </button>
-              )}
-              <button
-                className="btn btn-view"
-                onClick={() => setSelected(b)}
-              >
-                Chat
-              </button>
-              {(b.status === "Accepted" || b.status === "Rejected") && b.status !== "Cancelled" && (
-                <button
-                className="btn"
-                style={{ backgroundColor: "#059669", color: "white" }}
-                onClick={() => setReviewing(b)}
-                >
-                Review
-                </button>
-              )}
+              {/* 🔹 按钮显示逻辑 */}
+              <div style={{ display: "flex", gap: 8 }}>
+                {(displayStatus === "Pending" || displayStatus === "Accepted") && (
+                  <>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => {
+                        setCancelling(b);
+                        setCancelReason("");
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="btn btn-view"
+                      onClick={() => setSelected(b)}
+                    >
+                      Chat
+                    </button>
+                  </>
+                )}
+
+                {(displayStatus === "Cancelled" ||
+                  displayStatus === "Rejected" ||
+                  displayStatus === "Completed") && (
+                  <>
+                    <button
+                      className="btn btn-view"
+                      onClick={() => setSelected(b)}
+                    >
+                      Chat
+                    </button>
+                    <button
+                      className="btn"
+                      style={{ backgroundColor: "#059669", color: "white" }}
+                      onClick={() => setReviewing(b)}
+                    >
+                      Review
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        ))
+          );
+        })
       )}
+
 
       {reviewing && (
         <Modal onClose={() => setReviewing(null)}>
