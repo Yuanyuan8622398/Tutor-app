@@ -4,6 +4,11 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 const DataContext = createContext();
 
 export function DataProvider({ children }) {
+  const [tutors, setTutors] = useState(() => {
+    const saved = localStorage.getItem("tutors");
+    return saved ? JSON.parse(saved) : [];
+  });
+  
   const [bookings, setBookings] = useState(() => {
     const saved = localStorage.getItem("bookings");
     return saved ? JSON.parse(saved) : [];
@@ -16,6 +21,10 @@ export function DataProvider({ children }) {
 
   // ✅ 自动保存到 localStorage
   useEffect(() => {
+    localStorage.setItem("tutors", JSON.stringify(tutors));
+  }, [tutors]);
+
+  useEffect(() => {
     localStorage.setItem("bookings", JSON.stringify(bookings));
   }, [bookings]);
 
@@ -25,7 +34,7 @@ export function DataProvider({ children }) {
 
   return (
     <DataContext.Provider
-      value={{ bookings, setBookings, messagesMap, setMessagesMap }}
+      value={{ tutors, setTutors, bookings, setBookings, messagesMap, setMessagesMap }}
     >
       {children}
     </DataContext.Provider>
