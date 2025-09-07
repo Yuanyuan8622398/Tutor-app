@@ -73,7 +73,7 @@ const SAMPLE_TUTORS = [
     rating: 4.8,
     about: "Senior Pharmacy student offering clear and friendly tutoring to help you succeed.",
     avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQuQx1BW3rIelOwXMnsSwprVnqpML4FRRlF7g&s",
-    available: false,
+    available: true,
     availableTimes: ["21:00-23:00"],
     bookedCount: 17,
     year_level: "Year 4",
